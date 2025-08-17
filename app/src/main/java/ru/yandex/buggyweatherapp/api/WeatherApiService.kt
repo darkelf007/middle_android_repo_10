@@ -23,4 +23,11 @@ interface WeatherApiService {
         @Query("q") cityName: String,
         @Query("units") units: String = "metric"
     ): Response<JsonObject>
+
+    @GET("forecast")
+    suspend fun getForecast(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("units") units: String = "metric"
+    ): Response<JsonObject>
 }
