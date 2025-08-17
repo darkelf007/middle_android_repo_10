@@ -4,9 +4,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -28,23 +28,14 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-
         val apiKey = secretsProperties.getProperty("WEATHER_API_KEY") ?: "your_default_fallback_key"
-
-        buildConfigField(
-            "String",
-            "WEATHER_API_KEY",
-            "\"$apiKey\""
-        )
+        buildConfigField( "String", "WEATHER_API_KEY", "\"$apiKey\"" )
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles( getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro" )
         }
     }
     compileOptions {
@@ -57,6 +48,9 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
 }
 
@@ -104,10 +98,9 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     //Interceptor
     implementation(libs.logging.interceptor)
-
 }

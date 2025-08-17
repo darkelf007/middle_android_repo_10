@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.yandex.buggyweatherapp.domain.GetWeatherForCurrentLocationUseCase
 import ru.yandex.buggyweatherapp.model.Location
 import ru.yandex.buggyweatherapp.model.WeatherData
 import ru.yandex.buggyweatherapp.repository.ILocationRepository
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val weatherRepository: IWeatherRepository,
-    private val locationRepository: ILocationRepository
+    private val locationRepository: ILocationRepository,
+    private val getWeatherForCurrentLocationUseCase: GetWeatherForCurrentLocationUseCase
 ) : ViewModel() {
 
     val weatherData = MutableLiveData<WeatherData>()
@@ -37,16 +39,17 @@ class WeatherViewModel @Inject constructor(
             isLoading.value = true
             error.value = null
 
-            locationRepository.getCurrentLocation()
-                .onSuccess { location ->
-                    currentLocation.value = location
-                    getCityName(location)
-                    getWeatherForLocation(location)
+            getWeatherForCurrentLocationUseCase()
+                .onSuccess { result ->
+                    weatherData.value = result.weatherData
+                    currentLocation.value = result.location
+                    cityName.value = result.cityName ?: "Unknown City"
                 }
                 .onFailure { exception ->
-                    isLoading.value = false
                     error.value = exception.message ?: "Unable to get current location"
                 }
+
+            isLoading.value = false
         }
     }
 
