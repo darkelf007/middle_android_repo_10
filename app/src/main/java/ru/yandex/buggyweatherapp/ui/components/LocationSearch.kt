@@ -22,9 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import ru.yandex.buggyweatherapp.api.RetrofitInstance
-import ru.yandex.buggyweatherapp.repository.LocationRepository
-import ru.yandex.buggyweatherapp.repository.WeatherRepository
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +31,7 @@ fun LocationSearch(
     onLocationRequest: () -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
-    
+
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = searchText,
@@ -48,7 +46,7 @@ fun LocationSearch(
                 }
             },
             trailingIcon = {
-                IconButton(onClick = { 
+                IconButton(onClick = {
                     if (searchText.isNotBlank()) {
                         onCitySearch(searchText)
                     }
@@ -57,7 +55,7 @@ fun LocationSearch(
                 }
             },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { 
+            keyboardActions = KeyboardActions(onSearch = {
                 if (searchText.isNotBlank()) {
                     onCitySearch(searchText)
                 }
@@ -70,11 +68,9 @@ fun LocationSearch(
 fun LocationSearchWithDirectApiCall() {
     val context = LocalContext.current
     var searchText by remember { mutableStateOf("") }
-    
-    
-    val weatherRepository = WeatherRepository()
-    val locationRepository = LocationRepository(context)
-    
+
+
+
     OutlinedTextField(
         value = searchText,
         onValueChange = { searchText = it },
@@ -83,10 +79,9 @@ fun LocationSearchWithDirectApiCall() {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         trailingIcon = {
-            IconButton(onClick = { 
+            IconButton(onClick = {
                 if (searchText.isNotBlank()) {
-                    
-                    weatherRepository.getWeatherByCity(searchText) { weatherData, error -> }
+
                 }
             }) {
                 Icon(Icons.Default.Search, contentDescription = "Search")
