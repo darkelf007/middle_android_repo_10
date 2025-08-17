@@ -20,11 +20,17 @@ class WeatherRepositoryImpl @Inject constructor(
     override suspend fun getWeatherData(location: Location): Result<WeatherData> =
         withContext(Dispatchers.IO) {
             try {
-                val responseBody =
+                val response =
                     weatherApi.getCurrentWeather(location.latitude, location.longitude)
-                val weatherData = parseWeatherData(responseBody, location)
-                cachedWeatherData = weatherData
-                Result.success(weatherData)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val responseBody = response.body()!!
+                    val weatherData = parseWeatherData(responseBody, location)
+                    cachedWeatherData = weatherData
+                    Result.success(weatherData)
+                } else {
+                    Result.failure(Exception("API Error: ${response.code()} - ${response.message()}"))
+                }
             } catch (e: Exception) {
                 Log.e("WeatherRepository", "Error fetching weather", e)
                 Result.failure(e)
@@ -34,15 +40,22 @@ class WeatherRepositoryImpl @Inject constructor(
     override suspend fun getWeatherByCity(cityName: String): Result<WeatherData> =
         withContext(Dispatchers.IO) {
             try {
-                val responseBody = weatherApi.getWeatherByCity(cityName)
-                val location = extractLocationFromResponse(responseBody)
-                val weatherData = parseWeatherData(responseBody, location)
-                Result.success(weatherData)
+                val response = weatherApi.getWeatherByCity(cityName)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val responseBody = response.body()!!
+                    val location = extractLocationFromResponse(responseBody)
+                    val weatherData = parseWeatherData(responseBody, location)
+                    Result.success(weatherData)
+                } else {
+                    Result.failure(Exception("Error fetching weather by city: ${response.code()} - ${response.message()}"))
+                }
             } catch (e: Exception) {
                 Log.e("WeatherRepository", "Error fetching weather by city", e)
                 Result.failure(e)
             }
         }
+
 
     private fun parseWeatherData(json: JsonObject, location: Location): WeatherData {
 

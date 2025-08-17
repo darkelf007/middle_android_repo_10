@@ -53,7 +53,6 @@ class LocationRepositoryImpl @Inject constructor(
                             Location(latitude = location.latitude, longitude = location.longitude)
                         continuation.resume(Result.success(userLocation))
                     } else {
-                        // Если нет последнего местоположения, запрашиваем новое
                         requestFreshLocation(continuation)
                     }
                 }
